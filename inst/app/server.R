@@ -165,7 +165,8 @@ names(tcga.code) <- c('01','02','03','04','05','06','07','08','09','10',
 getTCGAdisease <- function(){
     projects <- TCGAbiolinks:::getGDCprojects()
     disease <-  projects$project_id
-    names(disease) <-  paste0(projects$disease_type, " (",disease,")")
+    idx <- grep("disease_type",colnames(projects))
+    names(disease) <-  paste0(projects[[idx]], " (",disease,")")
     disease <- disease[sort(names(disease))]
     return(disease)
 }
@@ -251,6 +252,7 @@ get.volumes <- function(directory = NULL){
 #' @import pathview ELMER TCGAbiolinks SummarizedExperiment shiny ggrepel UpSetR
 #' @keywords internal
 TCGAbiolinksGUIServer <- function(input, output, session) {
+    id <- NULL
     session$onSessionEnded(stopApp)
     server.path <- ifelse(system.file("app", package = "TCGAbiolinksGUI") == "",
                       "server",
