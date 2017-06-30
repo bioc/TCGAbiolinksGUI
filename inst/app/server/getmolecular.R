@@ -317,7 +317,7 @@ observeEvent(input$tcgaPrepareBt,{
                          n
                      }, error = function(e) {
                          createAlert(session, "tcgasearchmessage", "tcgaAlert", title = "Error", style =  "danger",
-                                     content = "Error while downloading the files", append = FALSE)
+                                     content = paste0("Error while downloading the files<br>",e), append = FALSE)
                          return(NULL)
                      })
                  })
@@ -326,21 +326,22 @@ observeEvent(input$tcgaPrepareBt,{
                      trash = tryCatch({
                          genes <- NULL
                          if(isolate({input$addGistic})) genes <- isolate({input$gisticGenes})
-                         trash <- GDCprepare(query, save = TRUE,
-                                             save.filename = filename,
-                                             summarizedExperiment = as.logical(isolate({input$prepareRb})),
-                                             directory = getPath,
-                                             mut.pipeline = isolate({input$tcgaPrepareMutPipeline}),
-                                             add.gistic2.mut = genes)
+                         data <- GDCprepare(query,
+                                            save = TRUE,
+                                            save.filename = filename,
+                                            summarizedExperiment = as.logical(isolate({input$prepareRb})),
+                                            directory = getPath,
+                                            mut.pipeline = isolate({input$tcgaPrepareMutPipeline}),
+                                            add.gistic2.mut = genes)
                          if(as.logical(isolate({input$prepareRb}))){
                              aux <- gsub(".rda","_samples_information.csv",filename)
-                             write_csv(x = as.data.frame(colData(trash)),path  = aux )
+                             write_csv(x = as.data.frame(colData(data)),path  = aux )
                              filename <- c(filename, aux)
                          }
-                         trash
+                         data
                      }, error = function(e) {
                          createAlert(session, "tcgasearchmessage", "tcgaAlert", title = "Error", style =  "danger",
-                                     content = "Error while preparing the files", append = FALSE)
+                                     content = paste0("Error while preparing the files<br>",e), append = FALSE)
                      })
                      createAlert(session, "tcgasearchmessage", "tcgaAlert", title = "Prepare completed", style =  "success",
                                  content =  paste0("Saved in: ", "<br><ul>", paste(filename, collapse = "</ul><ul>"),"</ul>"), append = FALSE)
