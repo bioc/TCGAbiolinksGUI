@@ -17,6 +17,8 @@ suppressPackageStartupMessages({
     library(grid)
     library(maftools)
     library(dplyr)
+    load("data/maf.tumor.rda")
+    load("data/GDCdisease.rda")
     options(shiny.maxRequestSize=-1) # Remove limit of upload
     options(shiny.deprecation.messages=FALSE)
     options(warn =-1)
@@ -175,14 +177,15 @@ names(tcga.code) <- c('01','02','03','04','05','06','07','08','09','10',
                       '11','12','13','14','20','40','50','60','61')
 
 # Defining parameters
-getTCGAdisease <- function(){
-    projects <- TCGAbiolinks:::getGDCprojects()
-    disease <-  projects$project_id
-    idx <- grep("disease_type",colnames(projects))
-    names(disease) <-  paste0(projects[[idx]], " (",disease,")")
-    disease <- disease[sort(names(disease))]
-    return(disease)
-}
+#getGDCdisease <- reactive({
+#    projects <- TCGAbiolinks:::getGDCprojects()
+#    projects <- projects[projects$id != "FM-AD",]
+#    disease <-  projects$project_id
+#    idx <- grep("disease_type",colnames(projects))
+#    names(disease) <-  paste0(projects[[idx]], " (",disease,")")
+#    disease <- disease[sort(names(disease))]
+#    return(disease)
+#})
 
 getMatchedPlatform <- function(query){
     matched <- NULL
