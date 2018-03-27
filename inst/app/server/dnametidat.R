@@ -40,9 +40,8 @@ idat <-  reactive({
     return(idat)
 })
 observeEvent(input$IDATfolder, {
-    closeAlert(session,"idatAlert")
+    closeAlert(session,"idatmessage")
     output$idattbl <- DT::renderDataTable({
-        closeAlert(session,"idatAlert")
         idat <- idat()
         if (is.null(idat)) return(NULL)
         df <- data.frame(samples = colnames(idat), t(minfi::annotation(idat)))
@@ -51,7 +50,7 @@ observeEvent(input$IDATfolder, {
 })
 
 observeEvent(input$idatqc, {
-    closeAlert(session,"idatAlert")
+    closeAlert(session,"idatmessage")
     idat <- idat()
 
     withProgress(message = 'Creating ShinyMethyl Summary object',
@@ -75,7 +74,7 @@ observeEvent(input$idatqc, {
                  })
 })
 observeEvent(input$idatnormalize, {
-    closeAlert(session,"idatAlert")
+    closeAlert(session,"idatmessage")
     idat <- idat()
     if (is.null(idat)) return(NULL)
     annotation <- as.data.frame(t(minfi::annotation(idat)))
@@ -142,6 +141,10 @@ observeEvent(input$idatnormalize, {
                      ### Step 4: Get beta-values:
                      beta <- as.data.frame(assays(proc.r)$Beta)
                      fname <- isolate({input$idatfilename})
+                     getPath <- parseDirPath(get.volumes(isolate({input$workingDir})), isolate({input$workingDir}))
+                     if (length(getPath) == 0) getPath <- paste0(Sys.getenv("HOME"),"/TCGAbiolinksGUI")
+                     fname <- file.path(getPath,fname)
+
                      incProgress(1, message = "Saving",detail = paste0("As: ", fname))
                      if(tools::file_ext(fname) == "csv"){
                          write.csv(beta,file = fname,row.names = T)
@@ -155,18 +158,17 @@ observeEvent(input$idatnormalize, {
                          met <- SummarizedExperiment(assays = SimpleList(beta),rowRanges = rowRanges, colData=colData)
                          save(met,file = fname)
                      } else {
-                         createAlert(session, "idatmessage",
+                         createAlert(session,
                                      "idatAlert",
+                                     "idatmessage",
                                      title = "Error in saving",
                                      style =  "danger",
                                      content = "File name has to be .csv or .rda. Saved as Idat.rda", append = FALSE)
-                         save(beta,file = "Idat.rda")
+                         save(beta,file = file.path(getPath,"Idat.rda"))
                      }
-                     getPath <- parseDirPath(get.volumes(isolate({input$workingDir})), isolate({input$workingDir}))
-                     if (length(getPath) == 0) getPath <- paste0(Sys.getenv("HOME"),"/TCGAbiolinksGUI")
-                     filename <- file.path(getPath,fname)
+
                      createAlert(session, "idatAlert", "idatmessage", title = "Processed data saved", style =  "success",
-                                 content =  paste0("Saved in: ", "<br><ul>", paste(filename, collapse = "</ul><ul>"),"</ul>"), append = FALSE)
+                                 content =  paste0("Saved in: ", "<br><ul>", paste(fname, collapse = "</ul><ul>"),"</ul>"), append = FALSE)
                  })
 
 })
