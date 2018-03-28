@@ -3,7 +3,6 @@
 export(TCGAbiolinksGUI)
 import(ELMER)
 import(TCGAbiolinks)
-import(caret)
 import(clusterProfiler)
 import(data.table)
 import(downloader)
