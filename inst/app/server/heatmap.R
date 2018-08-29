@@ -105,7 +105,7 @@ observe({
 # If the user ulpload a DEA results, the type of heatmap should be changed automatically to avoid
 # errors. Should this be visible to the user ?
 observe({
-    if(!is.null(input$heatmapresultsfile)){
+    if(class(input$volcanofile) == "list") {
         file  <- basename(as.character(parseFilePaths(get.volumes(isolate({input$workingDir})), input$heatmapresultsfile)$datapath))
         selected <- "met"
         if(grepl("DEA",file))  selected <- "exp"
@@ -134,7 +134,7 @@ observe({
 #=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=--=
 heatmapresultdata <-  reactive({
     inFile <- input$heatmapresultsfile
-    if (is.null(inFile)) return(NULL)
+    if(class(inFile) != "list") return(NULL)
     file  <- as.character(parseFilePaths(get.volumes(isolate({input$workingDir})), inFile)$datapath)
     # verify if the file is a csv
     ext <- tools::file_ext(file)
@@ -155,7 +155,7 @@ heatmapresultdata <-  reactive({
 
 heatmapdata <-  reactive({
     inFile <- input$heatmapfile
-    if (is.null(inFile)) return(NULL)
+    if(class(inFile) != "list") return(NULL)
     file  <- as.character(parseFilePaths(get.volumes(isolate({input$workingDir})), input$heatmapfile)$datapath)
 
     withProgress(message = 'Loading data',
